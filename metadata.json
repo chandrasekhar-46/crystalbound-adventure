@@ -1,0 +1,6 @@
+{
+  "name": "CRYSTALBOUND: THE QUEST BEGINS",
+  "description": "Explore the enchanted world of Aetherfall, recover ancient crystals, overcome mystical hazards, and restore the legendary Crystal Heart.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
