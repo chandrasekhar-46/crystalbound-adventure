@@ -19,7 +19,10 @@ export const MobileControls: React.FC<MobileControlsProps> = ({ onInput }) => {
   };
 
   return (
-    <div className="absolute bottom-4 left-4 z-30 pointer-events-auto md:hidden select-none">
+    <div
+      onContextMenu={(e) => e.preventDefault()}
+      className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-[max(1rem,env(safe-area-inset-left))] z-30 pointer-events-auto md:hidden select-none touch-none"
+    >
       <div className="relative w-36 h-36 bg-stone-900/80 backdrop-blur-md rounded-full border-2 border-amber-600/40 p-2 shadow-2xl flex items-center justify-center">
         {/* Up Button */}
         <button

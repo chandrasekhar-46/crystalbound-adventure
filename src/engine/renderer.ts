@@ -24,7 +24,7 @@ export class GameRenderer {
     particles: Particle[],
     floatingTexts: FloatingText[],
     allCrystalsCollected: boolean,
-    camera: { x: number; y: number; zoom: number },
+    camera: { x: number; y: number; zoom: number; viewW?: number; viewH?: number },
     time: number,
     reducedMotion: boolean
   ) {
@@ -32,7 +32,7 @@ export class GameRenderer {
     const canvas = ctx.canvas;
 
     ctx.save();
-    // Clear screen
+    // Clear screen with realm background color
     ctx.fillStyle = level.bgColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -41,8 +41,11 @@ export class GameRenderer {
     ctx.scale(camera.zoom, camera.zoom);
     ctx.translate(-camera.x, -camera.y);
 
-    // 1. Draw Environment Floor
-    this.drawFloor(level, time, reducedMotion);
+    const viewW = camera.viewW || (canvas.width / camera.zoom);
+    const viewH = camera.viewH || (canvas.height / camera.zoom);
+
+    // 1. Draw Environment Floor & Beyond-Boundary Aether Void
+    this.drawFloor(level, time, reducedMotion, { ...camera, viewW, viewH });
 
     // 2. Draw Obstacles (walls, trees, ruins, chasms)
     this.drawObstacles(level.obstacles, level.environment, time);
@@ -73,13 +76,48 @@ export class GameRenderer {
     ctx.restore();
   }
 
-  private drawFloor(level: LevelConfig, time: number, reducedMotion: boolean) {
+  private drawFloor(
+    level: LevelConfig,
+    time: number,
+    reducedMotion: boolean,
+    camera: { x: number; y: number; zoom: number; viewW: number; viewH: number }
+  ) {
     const ctx = this.ctx;
-    const { mapWidth, mapHeight, environment } = level;
+    const { mapWidth, mapHeight, environment, accentColor, bgColor } = level;
 
-    // Base background
-    ctx.fillStyle = level.bgColor;
+    // 1. Draw ethereal ambient void background covering the entire visible camera view
+    const margin = 200;
+    const startX = camera.x - margin;
+    const startY = camera.y - margin;
+    const fullW = camera.viewW + margin * 2;
+    const fullH = camera.viewH + margin * 2;
+
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(startX, startY, fullW, fullH);
+
+    // Ambient floating star motes in the ethereal space beyond the map
+    ctx.save();
+    const starCount = 36;
+    for (let i = 0; i < starCount; i++) {
+      const sx = ((i * 389 + 17) % Math.floor(fullW)) + startX;
+      const sy = ((i * 571 + 31) % Math.floor(fullH)) + startY;
+      if (sx < 0 || sx > mapWidth || sy < 0 || sy > mapHeight) {
+        ctx.fillStyle = accentColor;
+        ctx.globalAlpha = 0.2 + ((i % 4) * 0.1);
+        ctx.beginPath();
+        ctx.arc(sx, sy, 1 + (i % 2), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+
+    // 2. Playable Realm Base Floor with subtle edge glow
+    ctx.save();
+    ctx.shadowColor = accentColor;
+    ctx.shadowBlur = 16;
+    ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, mapWidth, mapHeight);
+    ctx.restore();
 
     const tileSize = 60;
     const cols = Math.ceil(mapWidth / tileSize);
@@ -234,6 +272,37 @@ export class GameRenderer {
       ctx.restore();
     }
 
+    ctx.restore();
+
+    // Draw realm perimeter boundary runes and barrier lines
+    ctx.save();
+    ctx.strokeStyle = accentColor;
+    ctx.lineWidth = 2.5;
+    ctx.strokeRect(0, 0, mapWidth, mapHeight);
+
+    // Subtle outer barrier aura line
+    ctx.strokeStyle = 'rgba(251, 191, 36, 0.35)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(-4, -4, mapWidth + 8, mapHeight + 8);
+
+    // Corner decorative crystal keystones
+    const cornerSize = 14;
+    const corners = [
+      { x: 0, y: 0 },
+      { x: mapWidth, y: 0 },
+      { x: 0, y: mapHeight },
+      { x: mapWidth, y: mapHeight },
+    ];
+    corners.forEach(c => {
+      ctx.fillStyle = accentColor;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(c.x - cornerSize / 2, c.y - cornerSize / 2, cornerSize, cornerSize);
+    });
     ctx.restore();
   }
 

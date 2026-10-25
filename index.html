@@ -2,7 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#0c0f0e" />
     <title>CRYSTALBOUND: THE QUEST BEGINS</title>
     <meta name="description" content="Explore the enchanted world of Aetherfall, recover ancient crystals, overcome mystical hazards, and restore the legendary Crystal Heart." />
     <meta property="og:title" content="CRYSTALBOUND: THE QUEST BEGINS" />
@@ -14,8 +18,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-stone-950 text-stone-100 font-sans select-none overflow-hidden m-0 p-0 w-full h-full">
-    <div id="root" class="w-full h-full min-h-screen"></div>
+  <body class="bg-stone-950 text-stone-100 font-sans select-none overflow-hidden m-0 p-0 w-full h-full fixed inset-0">
+    <div id="root" class="w-full h-full h-[100dvh] fixed inset-0 overflow-hidden"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

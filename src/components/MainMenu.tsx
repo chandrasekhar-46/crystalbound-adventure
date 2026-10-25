@@ -184,12 +184,12 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   };
 
   return (
-    <div className="relative w-full h-full min-h-screen overflow-hidden flex flex-col justify-between items-center text-stone-100 select-none">
+    <div className="relative w-full h-full min-h-[100dvh] overflow-y-auto overflow-x-hidden flex flex-col justify-between items-center text-stone-100 select-none px-3 py-2 sm:px-6 sm:py-4">
       {/* Background Canvas */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
+      <canvas ref={canvasRef} className="fixed inset-0 w-full h-full object-cover pointer-events-none" />
 
       {/* Top Header Bar */}
-      <header className="relative z-10 w-full max-w-6xl px-6 py-6 flex justify-between items-center">
+      <header className="relative z-10 w-full max-w-6xl py-2 sm:py-4 flex justify-between items-center shrink-0">
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-emerald-400/80 bg-stone-900/60 border border-emerald-500/20 px-3 py-1.5 rounded-full backdrop-blur-sm">
           <Sparkles className="w-3.5 h-3.5" />
           <span>Realm of Aetherfall</span>

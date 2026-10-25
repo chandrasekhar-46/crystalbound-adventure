@@ -129,7 +129,7 @@ export function updatePhysics(
 
       // Trigger collection callback
       onCrystalCollected(c);
-      soundManager.playCrystalCollect();
+      soundManager.playCrystalCollect(collectedCount);
 
       // Spawn sparkling particles
       for (let i = 0; i < 14; i++) {

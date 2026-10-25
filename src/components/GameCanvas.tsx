@@ -203,14 +203,18 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
     const resizeCanvas = () => {
       if (!canvas) return;
-      const rect = canvas.getBoundingClientRect();
+      const w = window.innerWidth;
+      const h = window.innerHeight;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
     };
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', resizeCanvas);
 
     const loop = (currentTime: number) => {
       const dt = (currentTime - lastTime) * 0.001;
@@ -274,22 +278,40 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         });
       }
 
-      // Camera follow calculation
+      // Responsive Camera calculation (eliminates black borders and centers map)
       const canvasW = canvas.width;
       const canvasH = canvas.height;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-      const targetZoom = Math.min(canvasW / (level.mapWidth * 0.95), canvasH / (level.mapHeight * 0.95), 1.25 * dpr);
-      const zoom = Math.max(0.65 * dpr, targetZoom);
+      // Optimal visible radius in game world units:
+      // Portrait mobile targets ~620 world units wide, Landscape targets ~650 world units high
+      const isPortrait = canvasW < canvasH;
+      const desiredUnits = isPortrait ? 620 : 650;
+      const screenFocusDim = isPortrait ? canvasW : canvasH;
+      const targetZoom = screenFocusDim / desiredUnits;
+
+      // Constrain zoom so graphics stay crisp across all screen sizes
+      const zoom = Math.max(0.72 * dpr, Math.min(1.55 * dpr, targetZoom));
 
       const viewW = canvasW / zoom;
       const viewH = canvasH / zoom;
 
-      let camX = player.x - viewW / 2;
-      let camY = player.y - viewH / 2;
+      // Smooth camera follow & bounds centering:
+      // If the viewport is larger than the map on an axis, center the map!
+      // If smaller, follow the player smoothly clamped to map boundaries.
+      let camX: number;
+      if (viewW >= level.mapWidth) {
+        camX = (level.mapWidth - viewW) / 2;
+      } else {
+        camX = Math.max(0, Math.min(level.mapWidth - viewW, player.x - viewW / 2));
+      }
 
-      camX = Math.max(0, Math.min(level.mapWidth - viewW, camX));
-      camY = Math.max(0, Math.min(level.mapHeight - viewH, camY));
+      let camY: number;
+      if (viewH >= level.mapHeight) {
+        camY = (level.mapHeight - viewH) / 2;
+      } else {
+        camY = Math.max(0, Math.min(level.mapHeight - viewH, player.y - viewH / 2));
+      }
 
       const collectedCount = crystals.filter(c => c.collected).length;
       const allCrystalsCollected = collectedCount >= level.targetCrystals;
@@ -313,7 +335,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         particlesRef.current,
         floatingTextsRef.current,
         allCrystalsCollected,
-        { x: camX, y: camY, zoom },
+        { x: camX, y: camY, zoom, viewW, viewH },
         currentTime * 0.001,
         reducedMotion
       );
@@ -326,6 +348,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('orientationchange', resizeCanvas);
       if (notificationTimeoutRef.current) {
         clearTimeout(notificationTimeoutRef.current);
       }
@@ -352,9 +375,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const isUnlocked = collectedCount >= level.targetCrystals;
 
   return (
-    <div className="relative w-full h-full min-h-screen bg-stone-950 overflow-hidden select-none">
+    <div className="fixed inset-0 w-full h-full h-[100dvh] bg-stone-950 overflow-hidden select-none touch-none">
       {/* Game Canvas */}
-      <canvas ref={canvasRef} className="w-full h-full block cursor-crosshair" />
+      <canvas ref={canvasRef} className="w-full h-full block cursor-crosshair touch-none" />
 
       {/* Fantasy HUD Overlay */}
       <HUD

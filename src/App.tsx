@@ -191,7 +191,7 @@ export default function App() {
   const currentLevelConfig = getLevel(currentLevelId, saveData.selectedDifficulty);
 
   return (
-    <div className="w-full h-full min-h-screen bg-stone-950 font-sans text-stone-100 flex flex-col relative overflow-hidden">
+    <div className="fixed inset-0 w-full h-full h-[100dvh] bg-stone-950 font-sans text-stone-100 flex flex-col overflow-hidden select-none">
       {/* Achievement Toast */}
       <AchievementToast
         achievement={activeAchievement}
